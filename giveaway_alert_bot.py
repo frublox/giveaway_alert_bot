@@ -10,6 +10,7 @@ import ConfigParser
 def read_config():
     """
     Reads config.ini and sets preferences to their according values.
+
     :return: None
     """
 
@@ -27,6 +28,7 @@ def read_config():
 def send_email_alert(submission_url):
     """
     Sends an email alerting of a giveaway at the specified url.
+
     :param submission_url: URL of the giveaway's post
     :return: None
     """
@@ -63,7 +65,7 @@ try:
             print u'Checking post "{}"...'.format(submission.title)
 
             if submission.title.lower().startswith('[giveaway]'):
-                # send_email_alert(submission.url)
+                send_email_alert(submission.url)
                 print 'Giveaway detected!'
 
             already_checked.append(submission.id)

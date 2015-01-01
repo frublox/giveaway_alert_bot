@@ -1,4 +1,4 @@
-giveaway_alert_bot
+/r/dogecoin Giveaway Alert Bot
 ==================
 
 Note: this was made with Python 2.7. If you want to update for Python 3 and aboe, just make the print statements into functions and change 'import ConfigParser' to 'import configparser'.

@@ -10,8 +10,8 @@ from smtplib import SMTPHeloError
 
 from email.mime.text import MIMEText
 
+import configparser
 import time
-import ConfigParser
 import sys
 
 
@@ -21,7 +21,7 @@ def get_prefs():
 
     :return: None
     """
-    config_parser = ConfigParser.SafeConfigParser()
+    config_parser = configparser.ConfigParser()
     config_parser.read('config.ini')
 
     prefs_dict = {
@@ -32,7 +32,7 @@ def get_prefs():
         'password': config_parser.get('email', 'password')
     }
 
-    print 'Successfully read in prefs from config.ini.'
+    print('Successfully read in prefs from config.ini.')
 
     return prefs_dict
 
@@ -64,10 +64,10 @@ def get_reddit_instance():
     try:
         reddit.login()
     except InvalidUserPass:
-        print 'Error: the login credentials specified in praw.ini are incorrect -- exiting...'
+        print('Error: the login credentials specified in praw.ini are incorrect -- exiting...')
         sys.exit(1)
 
-    print 'Successfully logged into reddit!'
+    print('Successfully logged into reddit!')
 
     return reddit
 
@@ -86,17 +86,17 @@ def get_smtp_connection():
         smtp_server.starttls()
         smtp_server.login(prefs['from_address'], prefs['password'])
     except SMTPAuthenticationError:
-        print 'Error: SMTP server refused to authenticate connection -- perhaps login credentials are incorrect?'
-        print 'Exiting...'
+        print('Error: SMTP server refused to authenticate connection -- perhaps login credentials are incorrect?')
+        print('Exiting...')
         sys.exit(1)
     except SMTPHeloError:
-        print 'Error: SMTP server responded improperly to HELO greeting -- exiting...'
+        print('Error: SMTP server responded improperly to HELO greeting -- exiting...')
         sys.exit(1)
     except SMTPException:
-        print 'Error: An SMTPException occurred when trying to connect to the SMTP server -- exiting...'
+        print('Error: An SMTPException occurred when trying to connect to the SMTP server -- exiting...')
         sys.exit(1)
 
-    print 'Successfully connected and logged in to SMTP server!'
+    print('Successfully connected and logged in to SMTP server!')
 
     return smtp_server
 
@@ -116,11 +116,11 @@ def check_posts(reddit, smtp_connection):
             if submission.id in already_checked:
                 continue
 
-            print u'Checking post "{}"'.format(submission.title)
+            print('Checking post "{}"'.format(submission.title))
 
             if submission.title.lower().startswith('[giveaway]'):
                 send_email_alert(smtp_connection, submission.url)
-                print 'Giveaway detected!'
+                print('Giveaway detected!')
 
             already_checked.append(submission.id)
 
@@ -136,7 +136,7 @@ def main():
             reddit = get_reddit_instance()
             check_posts(reddit, smtp_connection)
         except IOError:
-            print 'Lost connection to either SMTP server or reddit, attempting to reconnect...'
+            print('Lost connection to either SMTP server or reddit, attempting to reconnect...')
             continue
         finally:
             if smtp_connection is not None:

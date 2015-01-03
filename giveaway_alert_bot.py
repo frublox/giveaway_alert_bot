@@ -118,7 +118,7 @@ def check_posts(reddit, smtp_connection):
 
             print('Checking post "{}"'.format(submission.title))
 
-            if submission.title.lower().startswith('[giveaway]'):
+            if submission.link_flair_text.lower() == "giveaway":
                 send_email_alert(smtp_connection, submission.url)
                 print('Giveaway detected!')
 

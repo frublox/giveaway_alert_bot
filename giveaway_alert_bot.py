@@ -103,13 +103,13 @@ def get_smtp_connection():
         print('Error: SMTP server refused to authenticate connection -- perhaps login credentials are incorrect?')
         handle_error()
     except SMTPHeloError:
-        print('Error: SMTP server responded improperly to HELO greeting..')
+        print('Error: SMTP server responded improperly to HELO greeting.')
         handle_error()
     except SMTPConnectError:
         print('Error: Failed to connect to SMTPServer.')
         handle_error()
-    except SMTPException:
-        print('Error: An SMTPException occurred: ')
+    except SMTPException as e:
+        print('Error: An SMTPException occurred: {}'.format(e))
         handle_error()
 
     print('Successfully connected and logged in to SMTP server!')

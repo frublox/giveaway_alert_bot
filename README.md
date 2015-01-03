@@ -1,6 +1,8 @@
 /r/dogecoin Giveaway Alert Bot
 ==================
 
+Version: 1.1
+
 reddit bot that looks for giveaway posts on /r/dogecoin.
 
 Simply searches through new posts on /r/dogecoin and check if the post's title has a 'Giveaway' flair. If it does, the bot sends an email to the address specified in the config.ini file. Uses a local praw.ini file to log in to reddit.

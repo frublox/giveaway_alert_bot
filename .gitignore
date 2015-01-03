@@ -1,6 +1,7 @@
 # Configuration files #
 #######################
 *.ini
+!default_*.ini
 
 # Compiled source #
 ###################

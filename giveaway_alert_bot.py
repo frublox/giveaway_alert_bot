@@ -13,14 +13,44 @@ from email.mime.text import MIMEText
 
 import configparser
 import time
+import datetime
 import sys
+
+
+def log(message):
+    """
+    Logs a message based on the log_level field in config.ini.
+
+    Log level meanings:
+    0 - Only print message o console
+    1 - Print message to console and append it to the log file specified in config.ini
+
+    :param message: The message to log
+    :return: None
+    """
+
+    print(message)
+
+    def log_to_file():
+        with open(prefs['log_file'], 'a') as log_file:
+            timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+            log_file.write(timestamp + ': ' + message + '\n')
+
+    options = {
+        1: log_to_file
+    }
+
+    if options.get(prefs['log_level']) is not None:
+        options[prefs['log_level']]()
+    else:
+        print("Error: Invalid log level setting. Check the config.ini file.")
 
 
 def get_prefs():
     """
-    Returns a dictionary of prefs read from config.ini.
+    Reads prefs from config.ini into a dictionary.
 
-    :return: None
+    :return: Dictionary of prefs
     """
     config_parser = configparser.ConfigParser()
     config_parser.read('config.ini')
@@ -28,12 +58,14 @@ def get_prefs():
     prefs_dict = {
         'user_agent': config_parser.get('bot', 'user_agent'),
         'sleep_time': config_parser.getint('bot', 'sleep_time'),
+        'log_level': config_parser.getint('bot', 'log_level'),
+        'log_file': config_parser.get('bot', 'log_file'),
         'to_address': config_parser.get('email', 'to_address'),
         'from_address': config_parser.get('email', 'from_address'),
         'password': config_parser.get('email', 'password')
     }
 
-    print('Successfully read in prefs from config.ini.')
+    log('Successfully read in prefs from config.ini.')
 
     return prefs_dict
 
@@ -52,9 +84,9 @@ def send_email_alert(smtp_server, submission_url):
 
     try:
         smtp_server.sendmail(prefs['from_address'], [prefs['to_address']], msg.as_string())
-        print('Sent email alert.')
+        log('Sent email alert.')
     except IOError as e:
-        print('Failed to send email alert. Error: {}'.format(e))
+        log('Failed to send email alert. Error: {}'.format(e))
 
 
 def get_reddit_instance():
@@ -69,11 +101,11 @@ def get_reddit_instance():
     try:
         reddit.login()
     except InvalidUserPass:
-        print('Error: the login credentials specified in praw.ini are incorrect.')
-        print('Exiting...')
+        log('Error: the login credentials specified in praw.ini are incorrect.')
+        log('Exiting...')
         sys.exit(1)
 
-    print('Successfully logged into reddit!')
+    log('Successfully logged into reddit!')
 
     return reddit
 
@@ -89,7 +121,7 @@ def get_smtp_connection():
 
     # default behaviour in case the next try block catches an exception
     def handle_error():
-        print('Exiting...')
+        log('Exiting...')
         smtp_connection.quit()
         sys.exit(1)
 
@@ -100,19 +132,19 @@ def get_smtp_connection():
         smtp_connection.starttls()
         smtp_connection.login(prefs['from_address'], prefs['password'])
     except SMTPAuthenticationError:
-        print('Error: SMTP server refused to authenticate connection -- perhaps login credentials are incorrect?')
+        log('Error: SMTP server refused to authenticate connection -- perhaps login credentials are incorrect?')
         handle_error()
     except SMTPHeloError:
-        print('Error: SMTP server responded improperly to HELO greeting.')
+        log('Error: SMTP server responded improperly to HELO greeting.')
         handle_error()
     except SMTPConnectError:
-        print('Error: Failed to connect to SMTPServer.')
+        log('Error: Failed to connect to SMTPServer.')
         handle_error()
     except SMTPException as e:
-        print('Error: An SMTPException occurred: {}'.format(e))
+        log('Error: An SMTPException occurred: {}'.format(e))
         handle_error()
 
-    print('Successfully connected and logged in to SMTP server!')
+    log('Successfully connected and logged in to SMTP server!')
 
     return smtp_connection
 
@@ -134,7 +166,7 @@ def check_posts(reddit, smtp_connection):
 
             if submission.link_flair_text is not None:
                 if submission.link_flair_text.lower() == "giveaway":
-                    print('Giveaway detected at: {}'.format(submission.url))
+                    log('Giveaway detected at: {}'.format(submission.url))
                     send_email_alert(smtp_connection, submission.url)
 
             already_checked.append(submission.id)
@@ -151,8 +183,8 @@ def main():
             reddit = get_reddit_instance()
             check_posts(reddit, smtp_connection)
     except IOError as e:
-        print('Error: {}'.format(e))
-        print('Attempting to reconnect...')
+        log('Error: {}'.format(e))
+        log('Attempting to reconnect...')
         main()
     finally:
         if smtp_connection is not None:

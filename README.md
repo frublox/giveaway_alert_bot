@@ -1,7 +1,7 @@
 /r/dogecoin Giveaway Alert Bot
 ==================
 
-Version: 1.1
+Version: 1.2
 
 reddit bot that looks for giveaway posts on /r/dogecoin.
 

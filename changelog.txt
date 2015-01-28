@@ -1,0 +1,6 @@
+v1.2:
+More advanced logging support.
+v1.1:
+Major code restructuring, bug fixing, and error-checking.
+v1.0:
+Initial version.
